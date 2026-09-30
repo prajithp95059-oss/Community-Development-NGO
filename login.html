@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Stackly Foundation</title>
+<meta name="description" content="Log in or create your Stackly Foundation account to follow your giving, volunteer activity and the programs you support.">
+<link rel="icon" href="stackly-logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --header:#0F5C5C; --hero-1:#0F5C5C; --hero-2:#159A8C;
+    --btn:#2E7D4F; --btn-hover:#23663E;
+    --bg:#FFF8ED; --bg-alt:#EAF4EC; --accent:#F28C7A;
+    --card:#FFFFFF; --ink:#1E2B26; --ink-soft:#5A6B63;
+    --cream-deep:#F3E7D3; --red:#C0392B; --dark:#0A3F3F;
+    --line:rgba(15,92,92,.18);
+    --serif:'Fraunces',Georgia,serif; --sans:'Manrope',Arial,sans-serif;
+    --ease:cubic-bezier(.22,.9,.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  img{max-width:100%;display:block;}
+  a{color:inherit;text-decoration:none;}
+  ul{list-style:none;}
+  button{font-family:inherit;cursor:pointer;}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;color:var(--ink);}
+  p{color:var(--ink-soft);}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+
+  .split-word{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .08em .22em 0;margin-bottom:-.22em;}
+  .split-word>span{display:inline-block;transform:translateY(150%);}
+
+  /* ===== LAYOUT ===== */
+  .auth-wrap{min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;}
+
+  /* ---- visual side ---- */
+  .auth-visual{position:relative;overflow:hidden;min-height:100vh;background:linear-gradient(140deg,var(--hero-1),var(--hero-2));}
+  .auth-visual .bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.32;mix-blend-mode:luminosity;}
+  .auth-visual .mesh{position:absolute;inset:0;background:
+      linear-gradient(180deg,rgba(10,63,63,.45) 0%,rgba(10,63,63,.88) 65%,rgba(10,63,63,.96) 100%),
+      radial-gradient(ellipse 600px 400px at 15% 0%,rgba(242,140,122,.30),transparent 60%);}
+  .av-content{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;gap:32px;padding:clamp(28px,4vw,56px);}
+  .av-logo img{height:44px;width:auto;filter:brightness(0) invert(1);}
+  .av-hero{max-width:48ch;}
+  .av-eyebrow{display:flex;align-items:center;gap:10px;font-weight:700;font-size:.78rem;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;margin-bottom:16px;}
+  .av-eyebrow::before{content:"";width:26px;height:2px;background:var(--accent);}
+  .av-hero h1{color:#fff;font-size:clamp(2rem,3.4vw,3rem);line-height:1.12;margin-bottom:18px;}
+  .av-hero h1 em{font-style:italic;color:var(--accent);}
+  .av-hero p{color:rgba(255,255,255,.82);font-size:1.02rem;margin-bottom:30px;}
+  .av-stats{display:flex;gap:34px;flex-wrap:wrap;}
+  .av-stats h3{color:var(--accent);font-size:1.8rem;line-height:1.1;margin-bottom:2px;}
+  .av-stats span{font-size:.75rem;font-weight:600;color:rgba(255,255,255,.7);}
+  .av-quote{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:22px 24px;max-width:46ch;backdrop-filter:blur(6px);}
+  .av-quote p{font-family:var(--serif);font-style:italic;color:#fff;font-size:1.02rem;line-height:1.5;margin-bottom:12px;}
+  .av-quote .who{font-weight:700;font-size:.78rem;color:var(--accent);}
+
+  /* ---- form side ---- */
+  .auth-panel{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;padding:clamp(28px,4vw,56px) clamp(24px,5vw,80px);background:var(--bg);}
+  .m-logo{display:none;margin-bottom:26px;}
+  .m-logo img{height:38px;width:auto;filter:brightness(0) saturate(100%) invert(26%) sepia(45%) saturate(700%) hue-rotate(130deg);}
+  .auth-box{width:100%;max-width:440px;}
+
+  .mode-switch{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--bg-alt);border-radius:30px;padding:5px;margin-bottom:32px;}
+  .mode-switch .slider{position:absolute;top:5px;left:5px;width:calc(50% - 5px);height:calc(100% - 10px);background:var(--btn);border-radius:26px;transition:transform .4s var(--ease);}
+  .mode-switch[data-mode="signup"] .slider{transform:translateX(100%);}
+  .mode-switch button{position:relative;z-index:2;background:none;border:none;padding:11px 0;font-weight:800;font-size:.9rem;color:var(--ink-soft);border-radius:26px;transition:color .3s;}
+  .mode-switch button.active{color:#fff;}
+
+  .auth-eyebrow{font-weight:800;font-size:.76rem;color:var(--btn);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;}
+  .auth-box h2{font-size:1.75rem;line-height:1.2;margin-bottom:22px;}
+
+  .role-picker{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .role-opt{position:relative;display:block;}
+  .role-opt input{position:absolute;opacity:0;pointer-events:none;}
+  .role-opt .card{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;border:1.5px solid var(--line);border-radius:14px;background:var(--card);font-size:.85rem;font-weight:700;color:var(--ink-soft);text-align:center;cursor:pointer;transition:.25s;}
+  .role-opt .card svg{width:22px;height:22px;stroke:var(--ink-soft);fill:none;stroke-width:1.6;transition:.25s;}
+  .role-opt input:checked + .card{border-color:var(--btn);background:rgba(46,125,79,.08);color:var(--ink);}
+  .role-opt input:checked + .card svg{stroke:var(--btn);}
+  .role-opt input:focus-visible + .card{outline:2px solid var(--accent);outline-offset:2px;}
+  .role-caption{font-size:.82rem;margin-bottom:22px;}
+  .role-caption b{color:var(--ink);}
+
+  .top-alert{display:none;align-items:flex-start;gap:10px;background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.28);color:var(--red);padding:13px 16px;border-radius:10px;font-size:.85rem;font-weight:600;margin-bottom:18px;}
+  .top-alert.show{display:flex;}
+  .top-alert svg{width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.8;margin-top:1px;}
+  .top-alert.ok{background:rgba(46,125,79,.09);border-color:rgba(46,125,79,.3);color:var(--btn-hover);}
+
+  .form-group{margin-bottom:18px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .form-group label{display:block;font-weight:700;font-size:.78rem;color:var(--header);margin-bottom:8px;letter-spacing:.02em;}
+  .form-group input[type=text],.form-group input[type=email],.form-group input[type=tel],.form-group input[type=password]{
+    width:100%;padding:13px 16px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-family:var(--sans);font-size:.95rem;color:var(--ink);transition:border-color .25s,box-shadow .25s;}
+  .form-group input:focus{outline:none;border-color:var(--btn);box-shadow:0 0 0 4px rgba(46,125,79,.12);}
+  .form-group.invalid input{border-color:var(--red);}
+  .error-msg{display:none;font-size:.78rem;font-weight:600;color:var(--red);margin-top:7px;}
+  .form-group.invalid .error-msg{display:block;}
+
+  .pw-wrap{position:relative;}
+  .pw-wrap input{padding-right:48px;}
+  .pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;padding:8px;line-height:0;}
+  .pw-toggle svg{width:18px;height:18px;stroke:var(--ink-soft);fill:none;stroke-width:1.7;}
+  .pw-toggle.on svg{stroke:var(--btn);}
+  .pw-strength{height:4px;background:var(--line);border-radius:2px;margin-top:9px;overflow:hidden;}
+  .pw-strength-bar{height:100%;width:0;background:var(--red);transition:width .3s,background .3s;}
+  .pw-hint{font-size:.74rem;color:var(--ink-soft);margin-top:6px;}
+
+  .form-meta{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;}
+  .remember{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:600;color:var(--ink-soft);cursor:pointer;}
+  .remember input{accent-color:var(--btn);width:16px;height:16px;}
+  .forgot-link{font-size:.85rem;color:var(--btn);font-weight:700;background:none;border:none;}
+  .forgot-link:hover{text-decoration:underline;}
+  .remember-error{display:none;font-size:.78rem;font-weight:600;color:var(--red);margin-bottom:12px;}
+  .remember-error.show{display:block;}
+
+  .btn-block{width:100%;padding:15px;border-radius:32px;border:none;background:var(--btn);color:#fff;font-weight:800;font-size:.95rem;margin-top:6px;box-shadow:0 14px 30px rgba(46,125,79,.28);transition:background .3s,transform .3s;}
+  .btn-block:hover{background:var(--btn-hover);transform:translateY(-2px);}
+  .btn-block:disabled{opacity:.7;cursor:default;transform:none;}
+  .switch-note{text-align:center;font-size:.88rem;color:var(--ink-soft);margin-top:22px;}
+  .switch-note a{color:var(--btn);font-weight:800;}
+  .switch-note a:hover{text-decoration:underline;}
+
+  .back-link{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.82rem;color:var(--ink-soft);margin-top:34px;transition:.25s;}
+  .back-link svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;}
+  .back-link:hover{color:var(--btn);}
+
+  .auth-view{display:none;}
+  .auth-view.active{display:block;animation:panelIn .5s ease;}
+  @keyframes panelIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+  @media (max-width:980px){
+    .auth-wrap{grid-template-columns:1fr;}
+    .auth-visual{display:none;}
+    .m-logo{display:block;}
+  }
+  @media (max-width:520px){
+    .form-row{grid-template-columns:1fr;}
+    .auth-panel{padding:26px 20px 40px;}
+  }
+
+  /* ===== PRELOADER ===== */
+  .preloader{position:fixed;inset:0;z-index:9999;background:var(--header);display:flex;align-items:center;justify-content:center;transition:opacity .5s ease;}
+  .preloader.hide{opacity:0;pointer-events:none;}
+  .preloader img{height:42px;width:auto;filter:brightness(0) invert(1);animation:pulse 1.3s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:.45;transform:scale(.94);}50%{opacity:1;transform:scale(1);}}
+  @media (prefers-reduced-motion:reduce){.preloader img{animation:none;}.preloader{transition:none;}.auth-view.active{animation:none;}}
+
+  /* ===== MOBILE FIXES (v2) ===== */
+  .role-picker{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .role-opt{display:flex;}
+  .role-opt .card{flex:1;width:100%;box-sizing:border-box;justify-content:center;min-height:104px;}
+  @media(max-width:480px){ .role-picker{gap:10px;} .role-opt .card{padding:14px 8px;font-size:.82rem;} }
+</style>
+<style id="preloader-css">
+  .preloader{position:fixed;inset:0;z-index:99999;background:#0F5C5C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .5s ease;}
+  .preloader.hide{opacity:0;pointer-events:none;}
+  .preloader img{height:46px;width:auto;border-radius:0;filter:brightness(0) invert(1);animation:none;}
+  .preloader .pl-line{width:180px;height:3px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden;}
+  .preloader .pl-line span{display:block;height:100%;width:0;border-radius:3px;background:#F28C7A;animation:plFill 1s cubic-bezier(.4,0,.2,1) forwards;}
+  @keyframes plFill{to{width:100%;}}
+  @media (prefers-reduced-motion:reduce){.preloader{transition:none;}.preloader .pl-line span{animation-duration:.01s;}}
+</style>
+</head>
+<body data-page="login">
+
+<div class="preloader" id="preloader" role="status" aria-live="polite" aria-label="Loading"><img src="stackly-logo.webp" alt=""><div class="pl-line"><span></span></div></div>
+
+<div class="auth-wrap">
+
+  <!-- ============ VISUAL SIDE ============ -->
+  <aside class="auth-visual">
+    <img class="bg-img" src="./assets/peoples.webp" alt="" onerror="this.style.display='none'">
+    <div class="mesh"></div>
+    <div class="av-content">
+      <a href="index.html" class="av-logo"><img src="stackly-logo.webp" alt="Stackly Foundation"></a>
+      <div class="av-hero">
+        <div class="av-eyebrow">Donor &amp; Volunteer Portal</div>
+        <h1 id="heroTitle">Every gift tracked, <em>every</em> life changed.</h1>
+        <p>Follow your giving, see the programs you support and hear how your help is changing lives across Tamil Nadu — all from one account.</p>
+        <div class="av-stats">
+          <div><h3>12,400+</h3><span>Lives Impacted</span></div>
+          <div><h3>86</h3><span>Villages Reached</span></div>
+          <div><h3>15 yrs</h3><span>Of Service</span></div>
+        </div>
+      </div>
+      <div class="av-quote">
+        <p>“Every account here is a person who decided to care. Thank you for being one of them.”</p>
+        <div class="who">Anitha Raman — Executive Director</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ FORM SIDE ============ -->
+  <main class="auth-panel">
+    <a href="index.html" class="m-logo"><img src="stackly-logo.webp" alt="Stackly Foundation"></a>
+
+    <div class="auth-box">
+
+      <div class="mode-switch" id="modeSwitch" data-mode="signin">
+        <div class="slider"></div>
+        <button type="button" class="active" data-mode="signin">Log In</button>
+        <button type="button" data-mode="signup">Sign Up</button>
+      </div>
+
+      <!-- ===== LOG IN ===== -->
+      <section class="auth-view active" id="viewSignin">
+        <div class="auth-eyebrow">Welcome back</div>
+        <h2>Log in to your account</h2>
+
+        <div class="role-picker">
+          <label class="role-opt">
+            <input type="radio" name="login-role" value="supporter" checked>
+            <div class="card"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 000-7.8z"/></svg>Donor / Volunteer</div>
+          </label>
+          <label class="role-opt">
+            <input type="radio" name="login-role" value="admin">
+            <div class="card"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>Admin / Staff</div>
+          </label>
+        </div>
+        <div class="role-caption" id="loginRoleCaption">Signing in as a <b>donor / volunteer</b></div>
+
+        <div class="top-alert" id="loginAlert" role="alert">
+          <svg viewBox="0 0 24 24"><path d="M12 8v5M12 16h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+          <span id="loginAlertText">Please fill in a valid email and password.</span>
+        </div>
+
+        <form id="formLogin" novalidate>
+          <div class="form-group" id="fg-lemail">
+            <label for="loginEmail">Email address</label>
+            <input type="email" id="loginEmail" placeholder="you@email.com" autocomplete="username" maxlength="60">
+            <span class="error-msg">Enter a valid email address.</span>
+          </div>
+          <div class="form-group" id="fg-lpass">
+            <label for="loginPassword">Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="loginPassword" placeholder="At least 8 characters" autocomplete="current-password" maxlength="32">
+              <button type="button" class="pw-toggle" data-target="loginPassword" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+            <span class="error-msg">Password must be at least 8 characters.</span>
+          </div>
+          <div class="form-meta">
+            <label class="remember"><input type="checkbox" id="rememberMe"> Remember me</label>
+            <button type="button" class="forgot-link" onclick="error()" >Forgot password?</button>
+          </div>
+          <div class="remember-error" id="rememberError">Please check “Remember me” to log in.</div>
+          <button type="submit" class="btn-block" id="loginSubmit">Log in as <span id="loginRoleLabel">Donor / Volunteer</span> →</button>
+        </form>
+        <div class="switch-note">New here? <a href="#" onclick="switchMode('signup');return false;">Create an account</a></div>
+      </section>
+
+      <!-- ===== SIGN UP ===== -->
+      <section class="auth-view" id="viewSignup">
+        <div class="auth-eyebrow">Join Stackly Foundation</div>
+        <h2>Create your account</h2>
+
+        <div class="top-alert ok" id="signupAlert" role="status">
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          <span>Account created — please log in.</span>
+        </div>
+
+        <form id="formSignup" novalidate>
+          <div class="form-row">
+            <div class="form-group" id="fg-sfname">
+              <label for="signupFirstName">First name</label>
+              <input type="text" id="signupFirstName" placeholder="First name" maxlength="30" autocomplete="given-name">
+              <span class="error-msg">Letters only — no numbers or symbols.</span>
+            </div>
+            <div class="form-group" id="fg-slname">
+              <label for="signupLastName">Last name</label>
+              <input type="text" id="signupLastName" placeholder="Last name" maxlength="30" autocomplete="family-name">
+              <span class="error-msg">Letters only — no numbers or symbols.</span>
+            </div>
+          </div>
+
+          <div class="role-picker">
+            <label class="role-opt">
+              <input type="radio" name="signup-role" value="supporter" checked>
+              <div class="card"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 00-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 000-7.8z"/></svg>Donor / Volunteer</div>
+            </label>
+            <label class="role-opt">
+              <input type="radio" name="signup-role" value="admin">
+              <div class="card"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>Admin / Staff</div>
+            </label>
+          </div>
+          <div class="role-caption" id="signupRoleCaption">Creating an account as a <b>donor / volunteer</b></div>
+
+          <div class="form-group" id="fg-semail">
+            <label for="signupEmail">Email address</label>
+            <input type="email" id="signupEmail" placeholder="you@email.com" autocomplete="email" maxlength="60">
+            <span class="error-msg" id="semailErr">Enter a valid email address.</span>
+          </div>
+          <div class="form-group" id="fg-sphone">
+            <label for="signupPhone">Mobile number</label>
+            <input type="tel" id="signupPhone" placeholder="10-digit mobile number" inputmode="numeric" maxlength="10" autocomplete="tel-national">
+            <span class="error-msg">Enter a valid 10-digit mobile number — digits only.</span>
+          </div>
+          <div class="form-group" id="fg-spass">
+            <label for="signupPassword">Create password</label>
+            <div class="pw-wrap">
+              <input type="password" id="signupPassword" placeholder="At least 8 characters" autocomplete="new-password" maxlength="32">
+              <button type="button" class="pw-toggle" data-target="signupPassword" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+            <div class="pw-strength"><div class="pw-strength-bar" id="pwStrengthBar"></div></div>
+            <div class="pw-hint">Use 8+ characters with capitals, numbers and symbols for a stronger password.</div>
+            <span class="error-msg">Minimum 8 characters.</span>
+          </div>
+          <div class="form-group" id="fg-scpass">
+            <label for="signupConfirm">Confirm password</label>
+            <div class="pw-wrap">
+              <input type="password" id="signupConfirm" placeholder="Re-enter password" autocomplete="new-password" maxlength="32">
+              <button type="button" class="pw-toggle" data-target="signupConfirm" aria-label="Show password"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+            <span class="error-msg">Passwords do not match.</span>
+          </div>
+          <button type="submit" class="btn-block">Create account →</button>
+        </form>
+        <div class="switch-note">Already registered? <a href="#" onclick="switchMode('signin');return false;">Log in</a></div>
+      </section>
+
+      <!-- ===== FORGOT PASSWORD ===== -->
+      <section class="auth-view" id="viewForgot">
+        <div class="auth-eyebrow">Password help</div>
+        <h2>Reset your password</h2>
+        <div class="top-alert ok" id="forgotAlert" role="status">
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          <span id="forgotAlertText">A reset link is on its way.</span>
+        </div>
+        <form id="formForgot" novalidate>
+          <div class="form-group" id="fg-femail">
+            <label for="forgotEmail">Email address</label>
+            <input type="email" id="forgotEmail" placeholder="you@email.com" autocomplete="email" maxlength="60">
+            <span class="error-msg">Enter a valid email address.</span>
+          </div>
+          <button type="submit" class="btn-block">Send reset link →</button>
+        </form>
+        <div class="switch-note"><a href="#" onclick="switchMode('signin');return false;">← Back to log in</a></div>
+      </section>
+
+    </div>
+
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Home
+    </a>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var htmlEl = document.documentElement;
+
+  /* ---------- preloader ---------- */
+  var pre = $('preloader'), start = Date.now();
+  function reveal(){
+    if(pre){ pre.classList.add('hide'); setTimeout(function(){ pre.style.display='none'; }, 550); }
+  }
+  function onReady(){ setTimeout(reveal, Math.max(0, 1000-(Date.now()-start))); }
+  if(document.readyState === 'complete') onReady(); else window.addEventListener('load', onReady);
+
+  /* ---------- hero title word reveal + entrance ---------- */
+  var heroTitle = $('heroTitle');
+  if(heroTitle){
+    heroTitle.innerHTML = heroTitle.innerHTML.split(' ').map(function(w){ return '<span class="split-word"><span>'+w+'</span></span>'; }).join(' ');
+  }
+  var allSel = '.av-hero p, .av-stats, .av-quote, .auth-box, .back-link';
+  if(window.gsap){
+    gsap.set('.av-hero p, .av-stats, .av-quote', {opacity:0, y:16});
+    gsap.set('.auth-box', {opacity:0, y:22});
+    gsap.set('.back-link', {opacity:0});
+    gsap.timeline({defaults:{ease:'power4.out'}})
+      .to('.split-word > span', {y:'0%', duration:1, stagger:.05})
+      .to('.av-hero p, .av-stats, .av-quote', {opacity:1, y:0, duration:.7, stagger:.12}, '-=0.5')
+      .to('.auth-box', {opacity:1, y:0, duration:.7}, '-=0.6')
+      .to('.back-link', {opacity:1, duration:.5}, '-=0.4');
+  } else {
+    document.querySelectorAll('.split-word > span').forEach(function(s){ s.style.transform='none'; });
+    document.querySelectorAll(allSel).forEach(function(el){ el.style.opacity=1; });
+  }
+
+  /* ---------- storage helpers (same keys as the rest of the site) ---------- */
+  var USERS = 'stackly_users';
+  function getUsers(){ try{ return JSON.parse(localStorage.getItem(USERS)||'{}'); }catch(e){ return {}; } }
+  function saveUsers(u){ try{ localStorage.setItem(USERS, JSON.stringify(u)); }catch(e){} }
+  function hash(s){ var h=5381; for(var i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))>>>0; return h.toString(16); }
+
+  /* ---------- mode switch (Log In / Sign Up / Forgot) ---------- */
+  var modeSwitch = $('modeSwitch');
+  var views = {signin:$('viewSignin'), signup:$('viewSignup'), forgot:$('viewForgot')};
+  window.switchMode = function(mode){
+    var isTab = mode === 'signin' || mode === 'signup';
+    modeSwitch.style.display = isTab ? '' : 'none';
+    if(isTab){
+      modeSwitch.setAttribute('data-mode', mode);
+      modeSwitch.querySelectorAll('button').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-mode') === mode); });
+    }
+    Object.keys(views).forEach(function(k){ views[k].classList.toggle('active', k === mode); });
+    document.querySelectorAll('.top-alert').forEach(function(a){ a.classList.remove('show'); });
+  };
+  modeSwitch.querySelectorAll('button').forEach(function(btn){
+    btn.addEventListener('click', function(){ switchMode(btn.getAttribute('data-mode')); });
+  });
+  if(location.hash === '#signup') switchMode('signup');
+
+  /* ---------- role pickers ---------- */
+  function wireRole(name, captionId, labelId){
+    document.querySelectorAll('input[name="'+name+'"]').forEach(function(r){
+      r.addEventListener('change', function(){
+        var admin = r.value === 'admin';
+        var text = admin ? 'admin / staff' : 'donor / volunteer';
+        $(captionId).innerHTML = (name.indexOf('signup') === 0 ? 'Creating an account as a ' : 'Signing in as a ') + '<b>'+text+'</b>';
+        if(labelId) $(labelId).textContent = admin ? 'Admin / Staff' : 'Donor / Volunteer';
+      });
+    });
+  }
+  wireRole('login-role', 'loginRoleCaption', 'loginRoleLabel');
+  wireRole('signup-role', 'signupRoleCaption', null);
+
+  /* ---------- password show / hide ---------- */
+  document.querySelectorAll('.pw-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var input = $(btn.getAttribute('data-target'));
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.classList.toggle('on', show);
+      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+  });
+
+  /* ---------- password strength ---------- */
+  var spw = $('signupPassword');
+  spw.addEventListener('input', function(){
+    var v = spw.value, score = 0;
+    if(v.length >= 8) score++;
+    if(/[A-Z]/.test(v)) score++;
+    if(/[0-9]/.test(v)) score++;
+    if(/[^A-Za-z0-9]/.test(v)) score++;
+    var bar = $('pwStrengthBar');
+    bar.style.width = (score/4*100) + '%';
+    bar.style.background = ['#C0392B','#C0392B','#E0A030','#2E7D4F','#2E7D4F'][score];
+  });
+
+  /* ---------- strict input filters ---------- */
+  function filter(input, re, max){
+    if(!input) return;
+    input.addEventListener('input', function(){
+      var c = input.value.replace(re, '');
+      if(max) c = c.slice(0, max);
+      if(c !== input.value) input.value = c;
+    });
+  }
+  var NOT_LETTER = /[^A-Za-z]/g, NOT_DIGIT = /[^0-9]/g, SPACE = /\s/g;
+  filter($('signupFirstName'), NOT_LETTER, 30);
+  filter($('signupLastName'),  NOT_LETTER, 30);
+  filter($('signupPhone'),     NOT_DIGIT, 10);
+  ['loginEmail','signupEmail','forgotEmail','loginPassword','signupPassword','signupConfirm'].forEach(function(id){ filter($(id), SPACE); });
+
+  /* ---------- validators ---------- */
+  function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+  function isPhone(v){ return /^[6-9][0-9]{9}$/.test(v); }
+  function isName(v){ return /^[A-Za-z]{2,30}$/.test(v); }
+  function setInvalid(id, bad){ $(id).classList.toggle('invalid', bad); }
+  function alertMsg(id, textId, text, show){
+    var a = $(id); if(textId && text) $(textId).textContent = text; a.classList.toggle('show', show);
+  }
+
+  /* ---------- log in ---------- */
+  var rememberBox = $('rememberMe'), rememberError = $('rememberError');
+  rememberBox.addEventListener('change', function(){ if(rememberBox.checked) rememberError.classList.remove('show'); });
+
+  $('formLogin').addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = $('loginEmail').value.trim(), pass = $('loginPassword').value;
+    var emailOk = isEmail(email), passOk = pass.length >= 8, rememberOk = rememberBox.checked;
+    setInvalid('fg-lemail', !emailOk);
+    setInvalid('fg-lpass', !passOk);
+    rememberError.classList.toggle('show', !rememberOk);
+    if(!emailOk || !passOk){
+      alertMsg('loginAlert','loginAlertText','Please fill in a valid email and password.', true);
+      return;
+    }
+    if(!rememberOk){ alertMsg('loginAlert', null, null, false); return; }
+
+    /* any valid email is accepted - no account is required. A saved account (if one exists) only supplies the display name. */
+    alertMsg('loginAlert', null, null, false);
+    var users = getUsers(), u = users[email.toLowerCase()];
+    var local = email.split('@')[0].replace(/[^A-Za-z]+/g,' ').trim();
+    var first = u ? u.first : (local ? local.split(' ')[0].charAt(0).toUpperCase() + local.split(' ')[0].slice(1).toLowerCase() : 'Friend');
+    var last = u ? (u.last||'') : (local.split(' ')[1] ? local.split(' ')[1].charAt(0).toUpperCase() + local.split(' ')[1].slice(1).toLowerCase() : '');
+
+    var roleEl = document.querySelector('input[name="login-role"]:checked');
+    var role = roleEl ? roleEl.value : 'supporter';
+    try{
+      sessionStorage.setItem('stackly_session', JSON.stringify({first:first, email:email.toLowerCase()}));
+      localStorage.setItem('stackly_role', role);
+      localStorage.setItem('stackly_name', (first + ' ' + last).trim());
+      localStorage.setItem('stackly_email', email.toLowerCase());
+    }catch(err){}
+
+    var btn = $('loginSubmit'); btn.disabled = true; btn.textContent = 'Logging in…';
+    setTimeout(function(){ window.location.href = (role === 'admin') ? 'admin-dashboard.html' : 'user-dashboard.html'; }, 700);
+  });
+
+  /* ---------- sign up ---------- */
+  $('formSignup').addEventListener('submit', function(e){
+    e.preventDefault();
+    var fn = $('signupFirstName').value.trim(), ln = $('signupLastName').value.trim();
+    var email = $('signupEmail').value.trim(), phone = $('signupPhone').value.trim();
+    var pw = $('signupPassword').value, cpw = $('signupConfirm').value;
+    var users = getUsers(), exists = isEmail(email) && !!users[email.toLowerCase()];
+    var ok = true;
+    function chk(id, good){ setInvalid(id, !good); if(!good) ok = false; }
+    chk('fg-sfname', isName(fn));
+    chk('fg-slname', /^[A-Za-z]{1,30}$/.test(ln));
+    $('semailErr').textContent = exists ? 'An account with this email already exists. Please log in.' : 'Enter a valid email address.';
+    chk('fg-semail', isEmail(email) && !exists);
+    chk('fg-sphone', isPhone(phone));
+    chk('fg-spass', pw.length >= 8);
+    chk('fg-scpass', !!cpw && cpw === pw);
+    if(!ok) return;
+
+    var roleEl = document.querySelector('input[name="signup-role"]:checked');
+    users[email.toLowerCase()] = {first:fn, last:ln, email:email.toLowerCase(), mobile:phone, role:roleEl?roleEl.value:'supporter', ph:hash(pw)};
+    saveUsers(users);
+    alertMsg('signupAlert', null, null, true);
+    $('formSignup').reset();
+    $('pwStrengthBar').style.width = '0';
+    setTimeout(function(){
+      switchMode('signin');
+      $('loginEmail').value = email.toLowerCase();
+      alertMsg('loginAlert','loginAlertText','', false);
+    }, 900);
+  });
+
+  /* ---------- forgot password ---------- */
+  $('formForgot').addEventListener('submit', function(e){
+    e.preventDefault();
+    var email = $('forgotEmail').value.trim(), good = isEmail(email);
+    setInvalid('fg-femail', !good);
+    if(!good){ alertMsg('forgotAlert', null, null, false); return; }
+    alertMsg('forgotAlert','forgotAlertText','If an account exists for '+email+', a password reset link is on its way.', true);
+    $('formForgot').reset();
+  });
+})();
+function error(){
+  window.location.href="404.html";
+}
+</script>
+</body>
+</html>
